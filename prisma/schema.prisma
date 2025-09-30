@@ -4,6 +4,35 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+enum postStatus {
+  PUBLISH
+  DRAFT
+}
+
+model Post{
+  id Int @id @default(autoincrement())
+  slug String @unique
+  authorId Int 
+  status postStatus @default(DRAFT)
+  title String
+  body String
+  createdAt DateTime @default(now())
+  updateAt  DateTime?
+  cover String
+  tags String @default("")
+  author User? @relation(fields: [authorId], references: [id])
+ 
+}
+
+model User{
+  id Int @id @default(autoincrement())
+  status Boolean @default(true)
+  name String
+  email String @unique
+  password  String
+  posts Post[]
 }
