@@ -4,6 +4,43 @@ import slug from "slug";
 import { prisma } from "../libs/prisma";
 import { Prisma } from "../generated/prisma";
 
+export const getPublishPostBySlug = async (slug: string) => {
+  return await prisma.post.findUnique({
+    where: {
+      slug,
+      status: "PUBLISH",
+    },
+    include: {
+      author: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+};
+
+export const getPublishPosts = async (page: number) => {
+  let perPage: number = 5;
+  if (page <= 0) return [];
+
+  return await prisma.post.findMany({
+    where: { status: "PUBLISH" },
+    include: {
+      author: {
+        select: {
+          name: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 5,
+    skip: (page - 1) * perPage,
+  });
+};
+
 export const getAllPosts = async (page: number) => {
   let perPage: number = 5;
   if (page <= 0) return [];
@@ -37,6 +74,41 @@ export const getPostBySlug = async (slug: string) => {
       },
     },
   });
+};
+
+export const getPostWifhSameTags = async (slug: string) => {
+  const post = await prisma.post.findUnique({ where: { slug } });
+  if (!post) return [];
+
+  const tags = post.tags.split(",");
+  if (tags.length === 0) return [];
+
+  const orConditions = tags.flatMap((tag) => [
+    { tags: { equals: tag } },
+    { tags: { startsWith: `${tag},` } },
+    { tags: { endsWith: `,${tag}` } },
+    { tags: { contains: `,${tag},` } },
+  ]) as Prisma.PostWhereInput[];
+
+  const posts = await prisma.post.findMany({
+    where: {
+      status: "PUBLISH",
+      slug: { not: slug },
+      OR: orConditions,
+    },
+    include: {
+      author: {
+        select: {
+          name: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 4,
+  });
+  return posts;
 };
 
 export const handleCover = async (file: Express.Multer.File) => {

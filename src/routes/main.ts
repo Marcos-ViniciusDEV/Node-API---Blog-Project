@@ -9,6 +9,6 @@ MainRoutes.get("/api/ping", (req, res) => {
   });
 });
 
-MainRoutes.get("posts", mainConstroller.getAllPosts);
-MainRoutes.get("posts/:slug", mainConstroller.getPost);
-MainRoutes.get("posts/:slug/related", mainConstroller.getRelatedPosts);
+MainRoutes.get("/posts", mainConstroller.getAllPosts);
+MainRoutes.get("/posts/:slug", mainConstroller.getPost);
+MainRoutes.get("/posts/:slug/related", mainConstroller.getRelatedPosts);

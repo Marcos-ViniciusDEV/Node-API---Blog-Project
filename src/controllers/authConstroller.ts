@@ -2,7 +2,6 @@ import { RequestHandler, Response } from "express";
 import { z } from "zod";
 import { createUser, verifyUser } from "../services/userServices";
 import { createToken } from "../services/jwtServices";
-import { userProps } from "../services/TypeuserProps";
 import { ExtendedRequest } from "../types/extended-request";
 
 export const signup: RequestHandler = async (req, res) => {
